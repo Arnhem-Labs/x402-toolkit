@@ -1,2 +1,2 @@
 # x402-toolkit
-Production-informed Rust toolkit for x402 — payment-gated APIs, MCP tools, and usage-based billing. Axum middleware, async client, EIP-3009 helpers, multi-network. Vendor-neutral. Used in production at Arnhem Labs.
+A Rust-native toolkit for x402, the open standard for HTTP-native programmatic payments. Build payment-gated APIs, MCP servers, and usage-based-billing services in Axum; consume them from Rust agents and bots without API keys, accounts, or sessions — just a wallet. Production-informed: extracted from the inference API powering Arnhem Labs' products.
