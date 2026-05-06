@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    name: test (${{ matrix.toolchain }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [stable, "1.81"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --workspace --all-targets
+      - run: cargo test --workspace
+      - name: Test with all default features off
+        run: cargo test --workspace --no-default-features
+
+  features:
+    name: feature combinations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check -p x402-toolkit-tower --features pg-store
+      - run: cargo check -p x402-toolkit-cli   --features mock
+      - run: cargo check -p x402-toolkit-lambda --no-default-features
+
+  doc:
+    name: rustdoc
+    runs-on: ubuntu-latest
+    env:
+      RUSTDOCFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo doc --workspace --no-deps
+
+  agnosticism:
+    name: agnosticism audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No NaughtyBot strings in public crates
+        run: |
+          if grep -rIn -i 'naughty\|persona\|yoti\|wallet_av_claims' \
+              crates/ docs/ 2>/dev/null; then
+            echo "::error::found NaughtyBot-internal references in public crates"
+            exit 1
+          fi
+      - name: No path-deps
+        run: |
+          if grep -rn 'path *= *"\.\./' crates/ 2>/dev/null; then
+            echo "::error::found inter-workspace path-deps in published crates"
+            exit 1
+          fi
+      - name: No AWS / Lambda crate deps outside x402-toolkit-lambda
+        run: |
+          set -e
+          for c in x402-toolkit-types x402-toolkit-client x402-toolkit-tower \
+                   x402-toolkit-axum x402-toolkit-cli; do
+            # Allow doc-comment mentions; reject actual deps and `use` lines.
+            if grep -En '^(aws_|lambda_runtime|lambda_http)|use +(aws_|lambda_runtime|lambda_http)' \
+                "crates/$c/Cargo.toml" "crates/$c/src/"*.rs 2>/dev/null; then
+              echo "::error::found AWS/Lambda deps in $c (only allowed in x402-toolkit-lambda)"
+              exit 1
+            fi
+          done
+      - name: No `use coinbase` in non-client crates
+        run: |
+          set -e
+          for c in x402-toolkit-types x402-toolkit-tower x402-toolkit-axum \
+                   x402-toolkit-lambda; do
+            if grep -rEn 'use +coinbase' "crates/$c/" 2>/dev/null; then
+              echo "::error::found Coinbase code references in $c"
+              exit 1
+            fi
+          done
