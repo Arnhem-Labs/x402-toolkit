@@ -51,7 +51,6 @@ impl<S: Send + Sync> FromRequestParts<S> for Receipt {
 /// absent (instead of erroring). Useful for routes that are optionally
 /// gated (e.g. free tier + paid tier behind the same handler).
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub struct OptionalReceipt(pub Option<PaymentReceipt>);
 
 #[axum::async_trait]
@@ -59,6 +58,8 @@ impl<S: Send + Sync> FromRequestParts<S> for OptionalReceipt {
     type Rejection = std::convert::Infallible;
 
     async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
-        Ok(OptionalReceipt(parts.extensions.get::<PaymentReceipt>().cloned()))
+        Ok(OptionalReceipt(
+            parts.extensions.get::<PaymentReceipt>().cloned(),
+        ))
     }
 }

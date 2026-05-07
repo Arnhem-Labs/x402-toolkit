@@ -88,9 +88,9 @@ impl Authorization {
     pub fn nonce_bytes(&self) -> Result<[u8; 32], crate::X402Error> {
         let trimmed = self.nonce.strip_prefix("0x").unwrap_or(&self.nonce);
         let v = hex::decode(trimmed)?;
-        v.as_slice()
-            .try_into()
-            .map_err(|_| crate::X402Error::Invalid(format!("nonce must be 32 bytes, got {}", v.len())))
+        v.as_slice().try_into().map_err(|_| {
+            crate::X402Error::Invalid(format!("nonce must be 32 bytes, got {}", v.len()))
+        })
     }
 }
 
@@ -120,7 +120,10 @@ mod tests {
         let json = serde_json::to_value(&p).unwrap();
         assert_eq!(json["x402Version"], 2);
         assert_eq!(json["scheme"], "exact");
-        assert_eq!(json["payload"]["authorization"]["validBefore"], "1744000000");
+        assert_eq!(
+            json["payload"]["authorization"]["validBefore"],
+            "1744000000"
+        );
 
         let back: PaymentPayload = serde_json::from_value(json).unwrap();
         assert_eq!(back, p);
@@ -134,8 +137,7 @@ mod tests {
             value: "0".into(),
             valid_after: "0".into(),
             valid_before: "0".into(),
-            nonce: "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
-                .into(),
+            nonce: "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f".into(),
         };
         let bytes = a.nonce_bytes().unwrap();
         assert_eq!(bytes[0], 0x00);

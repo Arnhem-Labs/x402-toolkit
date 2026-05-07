@@ -8,9 +8,7 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-use x402_toolkit_types::{
-    eip3009::TransferWithAuthorization, PaymentPayload, PaymentReceipt,
-};
+use x402_toolkit_types::{eip3009::TransferWithAuthorization, PaymentPayload, PaymentReceipt};
 
 use crate::ClientError;
 
@@ -84,8 +82,7 @@ impl Facilitator for MockFacilitator {
         input.extend_from_slice(auth.from.as_bytes());
         let tx_hash = format!("0x{}", hex::encode(alloy_primitives::keccak256(&input).0));
 
-        Ok(PaymentReceipt::ok(payload.network.clone(), &auth.from)
-            .with_transaction(tx_hash))
+        Ok(PaymentReceipt::ok(payload.network.clone(), &auth.from).with_transaction(tx_hash))
     }
 }
 
@@ -104,12 +101,9 @@ fn verify_signature_recovery(payload: &PaymentPayload) -> Result<(), ClientError
 
     let auth = &payload.payload.authorization;
     let twa = TransferWithAuthorization::from_wire(auth)?;
-    let verifying = payload
-        .network
-        .usdc_address()
-        .ok_or_else(|| {
-            ClientError::Protocol("MockFacilitator: network has no canonical USDC address".into())
-        })?;
+    let verifying = payload.network.usdc_address().ok_or_else(|| {
+        ClientError::Protocol("MockFacilitator: network has no canonical USDC address".into())
+    })?;
     let digest = twa.eip712_hash("USD Coin", "2", &payload.network, verifying)?;
 
     let sig_hex = payload
@@ -180,8 +174,15 @@ impl HttpFacilitator {
         path: &str,
         payload: &PaymentPayload,
     ) -> Result<PaymentReceipt, ClientError> {
-        let url = format!("{}/{}", self.base_url.trim_end_matches('/'), path.trim_start_matches('/'));
-        let mut req = self.client.post(url).json(&serde_json::json!({ "payload": payload }));
+        let url = format!(
+            "{}/{}",
+            self.base_url.trim_end_matches('/'),
+            path.trim_start_matches('/')
+        );
+        let mut req = self
+            .client
+            .post(url)
+            .json(&serde_json::json!({ "payload": payload }));
         if let Some(t) = &self.bearer_token {
             req = req.bearer_auth(t);
         }
@@ -192,7 +193,9 @@ impl HttpFacilitator {
             return if status.as_u16() == 400 || status.as_u16() == 402 {
                 Err(ClientError::Rejected(body))
             } else {
-                Err(ClientError::Protocol(format!("facilitator {status}: {body}")))
+                Err(ClientError::Protocol(format!(
+                    "facilitator {status}: {body}"
+                )))
             };
         }
         let receipt: PaymentReceipt = resp.json().await?;
@@ -267,7 +270,10 @@ mod tests {
         let payload = sign_authorization(&signer, &spec()).await.unwrap();
         let receipt = MockFacilitator::default().verify(&payload).await.unwrap();
         assert!(receipt.success);
-        assert_eq!(receipt.payer.to_lowercase(), signer.address().to_lowercase());
+        assert_eq!(
+            receipt.payer.to_lowercase(),
+            signer.address().to_lowercase()
+        );
         assert!(receipt.transaction.is_some());
     }
 
@@ -280,7 +286,10 @@ mod tests {
         bytes[5] ^= 0xff;
         payload.payload.signature = format!("0x{}", hex::encode(bytes));
 
-        let err = MockFacilitator::default().verify(&payload).await.unwrap_err();
+        let err = MockFacilitator::default()
+            .verify(&payload)
+            .await
+            .unwrap_err();
         match err {
             ClientError::Rejected(_) | ClientError::Protocol(_) => {}
             other => panic!("expected Rejected, got {other:?}"),

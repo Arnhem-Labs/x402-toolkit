@@ -12,8 +12,7 @@
 //!    attached as a request extension. The middleware also adds the
 //!    `X-PAYMENT-RESPONSE` header to the inner service's response.
 //! 3. Replays are caught by an optional [`ReceiptStore`] (default:
-//!    in-memory; opt into [`PgReceiptStore`](pg::PgReceiptStore) under
-//!    feature `pg-store`).
+//!    in-memory; opt into `PgReceiptStore` under feature `pg-store`).
 //!
 //! [`Facilitator`]: x402_toolkit_client::Facilitator
 //! [`PaymentReceipt`]: x402_toolkit_types::PaymentReceipt

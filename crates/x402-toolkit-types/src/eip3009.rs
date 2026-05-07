@@ -46,10 +46,9 @@ impl TransferWithAuthorization {
             .from
             .parse()
             .map_err(|e| X402Error::Invalid(format!("from: {e}")))?;
-        let to: Address = a
-            .to
-            .parse()
-            .map_err(|e| X402Error::Invalid(format!("to: {e}")))?;
+        let to: Address =
+            a.to.parse()
+                .map_err(|e| X402Error::Invalid(format!("to: {e}")))?;
         let value: U256 = U256::from_str_radix(&a.value, 10)
             .map_err(|e| X402Error::Invalid(format!("value: {e}")))?;
         let valid_after: U256 = U256::from_str_radix(&a.valid_after, 10)
@@ -160,8 +159,7 @@ mod tests {
             value: "1000".into(),
             valid_after: "0".into(),
             valid_before: "9999999999".into(),
-            nonce: "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
-                .into(),
+            nonce: "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f".into(),
         }
     }
 
@@ -177,12 +175,8 @@ mod tests {
     fn hash_is_deterministic_and_32_bytes() {
         let a = sample_auth();
         let twa = TransferWithAuthorization::from_wire(&a).unwrap();
-        let h1 = twa
-            .eip712_hash_for_usdc(&Network::BaseMainnet)
-            .unwrap();
-        let h2 = twa
-            .eip712_hash_for_usdc(&Network::BaseMainnet)
-            .unwrap();
+        let h1 = twa.eip712_hash_for_usdc(&Network::BaseMainnet).unwrap();
+        let h2 = twa.eip712_hash_for_usdc(&Network::BaseMainnet).unwrap();
         assert_eq!(h1, h2);
         assert_eq!(h1.len(), 32);
     }

@@ -57,8 +57,7 @@ fn payment_payload_matches_expected_shape() {
                 value: "2000".into(),
                 valid_after: "0".into(),
                 valid_before: "1744000000".into(),
-                nonce: "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
-                    .into(),
+                nonce: "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f".into(),
             },
         },
     };

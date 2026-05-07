@@ -27,7 +27,11 @@ impl PgReceiptStore {
 
 #[async_trait]
 impl ReceiptStore for PgReceiptStore {
-    async fn mark_seen(&self, receipt: &PaymentReceipt, nonce: &[u8; 32]) -> Result<(), StoreError> {
+    async fn mark_seen(
+        &self,
+        receipt: &PaymentReceipt,
+        nonce: &[u8; 32],
+    ) -> Result<(), StoreError> {
         let payment_id = receipt
             .transaction
             .clone()

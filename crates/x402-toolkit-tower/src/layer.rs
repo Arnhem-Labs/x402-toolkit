@@ -16,8 +16,8 @@ use http::{Request, Response, StatusCode};
 use http_body::Body as HttpBody;
 use http_body_util::{combinators::UnsyncBoxBody, BodyExt, Full};
 use pin_project_lite::pin_project;
-use tower_layer::Layer;
 use tower::Service;
+use tower_layer::Layer;
 use tracing::{debug, warn};
 
 use x402_toolkit_client::{ClientError, Facilitator};
@@ -231,10 +231,7 @@ fn plain_response(status: StatusCode, body: &'static str) -> Response<X402Body> 
 
 /// Wrap the [`build_402_response`] body (`Full<Bytes>`) into [`X402Body`].
 fn into_x402_body_response(resp: Response<Full<Bytes>>) -> Response<X402Body> {
-    resp.map(|b| {
-        b.map_err(|never| match never {})
-            .boxed_unsync()
-    })
+    resp.map(|b| b.map_err(|never| match never {}).boxed_unsync())
 }
 
 pin_project! {
@@ -281,9 +278,7 @@ mod tests {
         }
 
         fn call(&mut self, _req: Request<Full<Bytes>>) -> Self::Future {
-            Box::pin(async {
-                Ok(Response::new(Full::new(Bytes::from_static(b"OK"))))
-            })
+            Box::pin(async { Ok(Response::new(Full::new(Bytes::from_static(b"OK")))) })
         }
     }
 
@@ -300,7 +295,9 @@ mod tests {
         std::future::poll_fn(|cx| Service::<Request<Full<Bytes>>>::poll_ready(svc, cx))
             .await
             .unwrap();
-        Service::<Request<Full<Bytes>>>::call(svc, req).await.unwrap()
+        Service::<Request<Full<Bytes>>>::call(svc, req)
+            .await
+            .unwrap()
     }
 
     #[tokio::test]

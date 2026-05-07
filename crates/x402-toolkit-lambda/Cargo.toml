@@ -31,3 +31,8 @@ axum               = { workspace = true, optional = true }
 axum               = { workspace = true }
 x402-toolkit-axum  = { workspace = true }
 x402-toolkit-client = { workspace = true }
+
+# The example uses `run_with_axum`, which is feature-gated.
+[[example]]
+name = "lambda_handler"
+required-features = ["with-axum"]

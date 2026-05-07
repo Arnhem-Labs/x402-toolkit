@@ -4,9 +4,7 @@
 use http::{header::HeaderValue, Response, StatusCode};
 use http_body_util::Full;
 
-use x402_toolkit_types::{
-    headers, PaymentPayload, PaymentRequired, PaymentSpec,
-};
+use x402_toolkit_types::{headers, PaymentPayload, PaymentRequired, PaymentSpec};
 
 /// Build a `PaymentRequired` challenge for `spec` and serialize it as a
 /// full HTTP `402` response body, including the `X-PAYMENT-REQUIRED`
@@ -17,9 +15,7 @@ use x402_toolkit_types::{
 /// box. Callers who need a different body type can rebuild the response
 /// from the [`PaymentRequired`] value via [`PaymentRequired::single`] /
 /// [`headers::encode_payment_required`].
-pub fn build_402_response(
-    spec: &PaymentSpec,
-) -> Response<Full<bytes::Bytes>> {
+pub fn build_402_response(spec: &PaymentSpec) -> Response<Full<bytes::Bytes>> {
     let pr = PaymentRequired::single(spec.clone());
     let body_bytes = serde_json::to_vec(&pr).expect("PaymentRequired serializes");
     let header = headers::encode_payment_required(&pr).expect("PaymentRequired base64-encodes");
@@ -31,8 +27,7 @@ pub fn build_402_response(
         HeaderValue::from_static("application/json"),
     );
     if let Ok(v) = HeaderValue::from_str(&header) {
-        resp.headers_mut()
-            .insert(headers::X_PAYMENT_REQUIRED, v);
+        resp.headers_mut().insert(headers::X_PAYMENT_REQUIRED, v);
     }
     resp
 }

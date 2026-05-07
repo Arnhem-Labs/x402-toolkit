@@ -33,7 +33,7 @@
 
 mod extractor;
 
-pub use extractor::Receipt;
+pub use extractor::{OptionalReceipt, Receipt};
 pub use x402_toolkit_tower::{
     build_402_response, InMemoryStore, LayerConfig, ReceiptStore, StoreError, X402Layer,
     X402Service,

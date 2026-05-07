@@ -40,7 +40,8 @@ pub enum StoreError {
 pub trait ReceiptStore: Send + Sync + 'static {
     /// Atomic insert. Returns `Err(StoreError::Replayed)` if the
     /// `(wallet, nonce)` was seen before its TTL expired.
-    async fn mark_seen(&self, receipt: &PaymentReceipt, nonce: &[u8; 32]) -> Result<(), StoreError>;
+    async fn mark_seen(&self, receipt: &PaymentReceipt, nonce: &[u8; 32])
+        -> Result<(), StoreError>;
 
     /// Optional point-lookup by `payment_id`. Implementations that
     /// don't store full receipts can return `Ok(None)`.
@@ -99,8 +100,15 @@ impl Default for InMemoryStore {
 
 #[async_trait]
 impl ReceiptStore for InMemoryStore {
-    async fn mark_seen(&self, receipt: &PaymentReceipt, nonce: &[u8; 32]) -> Result<(), StoreError> {
-        let mut map = self.inner.lock().map_err(|_| StoreError::Backend("poisoned".into()))?;
+    async fn mark_seen(
+        &self,
+        receipt: &PaymentReceipt,
+        nonce: &[u8; 32],
+    ) -> Result<(), StoreError> {
+        let mut map = self
+            .inner
+            .lock()
+            .map_err(|_| StoreError::Backend("poisoned".into()))?;
         self.prune(&mut map);
         let key = Key {
             wallet_lower: receipt.payer.to_lowercase(),
@@ -120,7 +128,10 @@ impl ReceiptStore for InMemoryStore {
     }
 
     async fn get(&self, payment_id: &str) -> Result<Option<PaymentReceipt>, StoreError> {
-        let map = self.inner.lock().map_err(|_| StoreError::Backend("poisoned".into()))?;
+        let map = self
+            .inner
+            .lock()
+            .map_err(|_| StoreError::Backend("poisoned".into()))?;
         Ok(map
             .values()
             .find(|e| {

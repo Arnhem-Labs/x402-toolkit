@@ -9,9 +9,11 @@
 //! # Quickstart
 //!
 //! Build an `axum::Router`, attach `X402Layer` to whichever routes you
-//! want gated, and hand the whole router to [`run_with_axum`]:
+//! want gated, and hand the whole router to `run_with_axum` (available
+//! when the default `with-axum` feature is enabled):
 //!
 //! ```no_run
+//! # #[cfg(feature = "with-axum")] {
 //! use axum::{Router, routing::get};
 //! use x402_toolkit_axum::{LayerConfig, X402Layer};
 //! use x402_toolkit_client::MockFacilitator;
@@ -29,6 +31,7 @@
 //!         .layer(X402Layer::new(cfg));
 //!     run_with_axum(app).await
 //! }
+//! # }
 //! ```
 
 #![cfg_attr(docsrs, feature(doc_cfg))]

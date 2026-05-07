@@ -155,8 +155,7 @@ impl<'a> PaymentBuilder<'a> {
         }
 
         let valid_before = self.valid_before.unwrap_or_else(|| {
-            chrono::Utc::now().timestamp() as u64
-                + u64::from(self.spec.max_timeout_seconds.max(1))
+            chrono::Utc::now().timestamp() as u64 + u64::from(self.spec.max_timeout_seconds.max(1))
         });
         let value = self
             .value

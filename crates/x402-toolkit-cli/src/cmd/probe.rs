@@ -18,20 +18,15 @@ pub async fn run(args: ProbeArgs) -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("warning: expected 402, got {}", resp.status());
     }
 
-    let pr = challenge_from_headers(resp.headers())?
-        .or_else(|| {
-            // Some servers may not set X-PAYMENT-REQUIRED but put the
-            // challenge in the body; try parsing the body if it's JSON.
-            None
-        });
-
-    let pr = match pr {
+    // Try the X-PAYMENT-REQUIRED header first; some servers may not set it
+    // and put the challenge in the body instead.
+    let pr = match challenge_from_headers(resp.headers())? {
         Some(p) => p,
         None => {
-            // Fall back to body-as-JSON.
             let bytes = resp.bytes().await?;
-            serde_json::from_slice::<PaymentRequired>(&bytes)
-                .map_err(|e| format!("no X-PAYMENT-REQUIRED header and body isn't a PaymentRequired: {e}"))?
+            serde_json::from_slice::<PaymentRequired>(&bytes).map_err(|e| {
+                format!("no X-PAYMENT-REQUIRED header and body isn't a PaymentRequired: {e}")
+            })?
         }
     };
 
@@ -40,7 +35,9 @@ pub async fn run(args: ProbeArgs) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn challenge_from_headers(h: &HeaderMap) -> Result<Option<PaymentRequired>, Box<dyn std::error::Error>> {
+fn challenge_from_headers(
+    h: &HeaderMap,
+) -> Result<Option<PaymentRequired>, Box<dyn std::error::Error>> {
     let Some(v) = h.get(headers::X_PAYMENT_REQUIRED) else {
         return Ok(None);
     };

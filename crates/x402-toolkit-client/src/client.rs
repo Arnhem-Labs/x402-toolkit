@@ -116,18 +116,23 @@ impl<S: WalletSigner> RequestBuilder<S> {
             .map_err(|e| ClientError::Protocol(format!("X-PAYMENT-REQUIRED not utf-8: {e}")))?
             .to_string();
         let challenge: PaymentRequired = headers::decode_payment_required(&header)?;
-        let spec = challenge
-            .accepts
-            .into_iter()
-            .next()
-            .ok_or_else(|| ClientError::Protocol("PaymentRequired had empty 'accepts'".into()))?;
+        let spec =
+            challenge.accepts.into_iter().next().ok_or_else(|| {
+                ClientError::Protocol("PaymentRequired had empty 'accepts'".into())
+            })?;
         let payload = sign_authorization(self.client.signer.as_ref(), &spec).await?;
         let payment_header = headers::encode_payment(&payload)?;
         self.send_once(Some(payment_header)).await
     }
 
-    async fn send_once(&self, payment_header: Option<String>) -> Result<reqwest::Response, ClientError> {
-        let mut req = self.client.http.request(self.method.clone(), self.url.clone());
+    async fn send_once(
+        &self,
+        payment_header: Option<String>,
+    ) -> Result<reqwest::Response, ClientError> {
+        let mut req = self
+            .client
+            .http
+            .request(self.method.clone(), self.url.clone());
         for (k, v) in &self.headers {
             req = req.header(k, v);
         }

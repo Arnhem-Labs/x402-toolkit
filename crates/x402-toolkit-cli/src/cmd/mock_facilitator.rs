@@ -35,7 +35,9 @@ struct VerifyBody {
     payload: PaymentPayload,
 }
 
-async fn verify_handler(Json(body): Json<VerifyBody>) -> Result<Json<PaymentReceipt>, (axum::http::StatusCode, String)> {
+async fn verify_handler(
+    Json(body): Json<VerifyBody>,
+) -> Result<Json<PaymentReceipt>, (axum::http::StatusCode, String)> {
     let f = MockFacilitator::default();
     f.verify(&body.payload)
         .await
@@ -43,6 +45,8 @@ async fn verify_handler(Json(body): Json<VerifyBody>) -> Result<Json<PaymentRece
         .map_err(|e| (axum::http::StatusCode::BAD_REQUEST, e.to_string()))
 }
 
-async fn settle_handler(body: Json<VerifyBody>) -> Result<Json<PaymentReceipt>, (axum::http::StatusCode, String)> {
+async fn settle_handler(
+    body: Json<VerifyBody>,
+) -> Result<Json<PaymentReceipt>, (axum::http::StatusCode, String)> {
     verify_handler(body).await
 }
