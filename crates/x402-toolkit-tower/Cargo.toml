@@ -1,0 +1,43 @@
+[package]
+name        = "x402-toolkit-tower"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+repository  = { workspace = true }
+homepage    = { workspace = true }
+authors     = { workspace = true }
+description = "Framework-agnostic tower::Layer for gating HTTP services on x402 payments."
+keywords    = ["x402", "tower", "middleware", "payments", "axum"]
+categories  = ["web-programming::http-server", "asynchronous"]
+readme      = "README.md"
+
+[features]
+default  = []
+# Adds PgReceiptStore and ships the SQL migration for x402_payment_receipts.
+pg-store = ["dep:sqlx"]
+
+[dependencies]
+x402-toolkit-types  = { workspace = true }
+x402-toolkit-client = { workspace = true }
+serde            = { workspace = true }
+serde_json       = { workspace = true }
+thiserror        = { workspace = true }
+chrono           = { workspace = true }
+tracing          = { workspace = true }
+async-trait      = { workspace = true }
+tower            = { workspace = true }
+tower-layer      = { workspace = true }
+http             = { workspace = true }
+http-body        = { workspace = true }
+http-body-util   = { workspace = true }
+bytes            = { workspace = true }
+futures          = { workspace = true }
+pin-project-lite = { workspace = true }
+sqlx             = { workspace = true, optional = true }
+hex              = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+hyper = { workspace = true }
+hyper-util = { workspace = true }

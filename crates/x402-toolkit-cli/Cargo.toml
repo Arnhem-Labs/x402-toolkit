@@ -1,0 +1,47 @@
+[package]
+name        = "x402-toolkit-cli"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+repository  = { workspace = true }
+homepage    = { workspace = true }
+authors     = { workspace = true }
+description = "x402t — debug and develop x402 payment integrations: probe, sign, verify, mock-facilitator."
+keywords    = ["x402", "cli", "payments", "tools", "facilitator"]
+categories  = ["command-line-utilities", "development-tools"]
+readme      = "README.md"
+
+[[bin]]
+name = "x402t"
+path = "src/main.rs"
+
+[features]
+default = []
+# Enables the in-process `mock-facilitator` server (pulls axum + hyper).
+mock = ["dep:axum", "dep:hyper"]
+
+[dependencies]
+x402-toolkit-types  = { workspace = true }
+x402-toolkit-client = { workspace = true }
+clap                = { workspace = true, features = ["env"] }
+futures             = { workspace = true }
+serde               = { workspace = true }
+serde_json          = { workspace = true }
+thiserror           = { workspace = true }
+tracing             = { workspace = true }
+tracing-subscriber  = { workspace = true }
+hex                 = { workspace = true }
+base64              = { workspace = true }
+reqwest             = { workspace = true }
+chrono              = { workspace = true }
+async-trait         = { workspace = true }
+tokio               = { workspace = true }
+
+# Optional — only pulled in by the `mock` feature.
+axum  = { workspace = true, optional = true }
+hyper = { workspace = true, optional = true }
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"

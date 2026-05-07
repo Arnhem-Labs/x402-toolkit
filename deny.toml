@@ -1,0 +1,38 @@
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+ignore = [
+    # `paste` is widely used by alloy + sqlx; the author archived the repo
+    # but it's a tiny proc-macro with no security implications. Revisit
+    # once alloy / sqlx ship replacements (`pastey` is a candidate).
+    "RUSTSEC-2024-0436",
+]
+
+[licenses]
+version = 2
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "Zlib",
+    "CC0-1.0",
+    # `webpki-roots` ships under CDLA-Permissive-2.0 (Mozilla's CA list);
+    # it's a permissive data license accepted by both the FSF and BlueOak.
+    "CDLA-Permissive-2.0",
+]
+confidence-threshold = 0.93
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
