@@ -1,0 +1,27 @@
+[package]
+name        = "x402-toolkit-axum"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+repository  = { workspace = true }
+homepage    = { workspace = true }
+authors     = { workspace = true }
+description = "Axum extractors and router extensions for x402 payment-gated routes."
+keywords    = ["x402", "axum", "middleware", "payments", "tower"]
+categories  = ["web-programming::http-server"]
+readme      = "README.md"
+
+[dependencies]
+x402-toolkit-types = { workspace = true }
+x402-toolkit-tower = { workspace = true }
+axum               = { workspace = true }
+tower              = { workspace = true }
+http               = { workspace = true }
+async-trait        = { workspace = true }
+tracing            = { workspace = true }
+
+[dev-dependencies]
+tokio               = { workspace = true }
+tracing-subscriber  = { workspace = true }
+x402-toolkit-client = { workspace = true }

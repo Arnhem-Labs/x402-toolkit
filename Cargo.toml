@@ -1,0 +1,71 @@
+[workspace]
+resolver = "2"
+members  = ["crates/*"]
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+rust-version = "1.81"
+license      = "MIT OR Apache-2.0"
+repository   = "https://github.com/Arnhem-Labs/x402-toolkit"
+homepage     = "https://github.com/Arnhem-Labs/x402-toolkit"
+authors      = ["Arnhem Labs <oss@arnhemlabs.com>"]
+
+[workspace.dependencies]
+x402-toolkit-types  = { version = "0.1.0", path = "crates/x402-toolkit-types" }
+x402-toolkit-client = { version = "0.1.0", path = "crates/x402-toolkit-client" }
+x402-toolkit-tower  = { version = "0.1.0", path = "crates/x402-toolkit-tower" }
+x402-toolkit-axum   = { version = "0.1.0", path = "crates/x402-toolkit-axum" }
+x402-toolkit-lambda = { version = "0.1.0", path = "crates/x402-toolkit-lambda" }
+
+# Core
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+thiserror   = "1"
+tracing     = "0.1"
+chrono      = { version = "0.4", default-features = false, features = ["serde", "clock"] }
+base64      = "0.22"
+hex         = "0.4"
+
+# Async / HTTP
+tokio       = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
+reqwest     = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tower       = { version = "0.5", features = ["util"] }
+tower-layer = "0.3"
+http        = "1"
+http-body   = "1"
+http-body-util = "0.1"
+bytes       = "1"
+futures     = "0.3"
+async-trait = "0.1"
+pin-project-lite = "0.2"
+
+# Web frameworks
+axum  = { version = "0.7", default-features = false, features = ["http1", "json", "tokio"] }
+hyper = { version = "1", features = ["http1", "server"] }
+hyper-util = { version = "0.1", features = ["server-auto", "tokio"] }
+
+# AWS Lambda (only used by x402-toolkit-lambda)
+lambda_http    = "0.13"
+lambda_runtime = "0.13"
+
+# Ethereum / EIP-3009
+alloy-primitives    = { version = "0.8", features = ["serde"] }
+alloy-sol-types     = "0.8"
+alloy-signer        = "0.5"
+alloy-signer-local  = "0.5"
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Database (only for x402-toolkit-tower pg-store feature)
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "postgres", "macros", "chrono", "uuid"] }
+
+# Testing
+tokio-test = "0.4"
+
+[profile.release]
+lto           = "thin"
+codegen-units = 1
+strip         = "symbols"

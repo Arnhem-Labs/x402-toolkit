@@ -1,0 +1,33 @@
+[package]
+name        = "x402-toolkit-lambda"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+repository  = { workspace = true }
+homepage    = { workspace = true }
+authors     = { workspace = true }
+description = "Optional AWS Lambda runtime adapter for x402-toolkit-tower / x402-toolkit-axum services."
+keywords    = ["x402", "lambda", "aws", "payments", "axum"]
+categories  = ["web-programming::http-server"]
+readme      = "README.md"
+
+[features]
+default    = ["with-axum"]
+# Enables the `run_with_axum` adapter. Most users want this on.
+with-axum  = ["dep:axum"]
+
+[dependencies]
+x402-toolkit-types = { workspace = true }
+x402-toolkit-tower = { workspace = true }
+lambda_http        = { workspace = true }
+lambda_runtime     = { workspace = true }
+tower              = { workspace = true }
+tokio              = { workspace = true }
+tracing            = { workspace = true }
+axum               = { workspace = true, optional = true }
+
+[dev-dependencies]
+axum               = { workspace = true }
+x402-toolkit-axum  = { workspace = true }
+x402-toolkit-client = { workspace = true }
